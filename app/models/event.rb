@@ -4,7 +4,7 @@ class Event < ApplicationRecord
   def self.availabilities(date)
     result = []
     grouped_by_date =  Event.all.group_by { |event| event.starts_at.to_date }
-    7.times do
+    1.week.size.times do
       slots = []
       grouped_by_date[date.to_date].try(:each) do |event|
         slots << event.starts_at.strftime('%H:%M') if event.kind == "opening"
