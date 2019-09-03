@@ -15,4 +15,30 @@ class EventTest < ActiveSupport::TestCase
     assert_equal '2014/08/16', availabilities[6][:date]
     assert_equal 7, availabilities.length
   end
+
+  test "when create event weekly_recurring false" do
+    Event.create kind: 'opening', starts_at: DateTime.parse("2014-08-04 09:30"), ends_at: DateTime.parse("2014-08-04 12:30"), weekly_recurring: false
+    assert_equal 6, Event.all.size
+  end
+
+  test "when create event weekly_recurring true" do
+    Event.create kind: 'opening', starts_at: DateTime.parse("2014-08-04 09:30"), ends_at: DateTime.parse("2014-08-04 12:30"), weekly_recurring: true
+    assert_equal 42, Event.all.size
+  end
+
+  test "not create event in sunday" do
+    Event.create kind: 'opening', starts_at: DateTime.parse("2019-09-01 09:30"), ends_at: DateTime.parse("2019-09-01 12:30"), weekly_recurring: false
+    assert_equal 0, Event.all.size
+  end
+
+  test "create event with 30 minutes duration" do
+    Event.create kind: 'opening', starts_at: DateTime.parse("2014-08-04 09:30"), ends_at: DateTime.parse("2014-08-04 12:30"), weekly_recurring: false
+    assert_equal Event.first.ends_at.to_i - Event.first.starts_at.to_i, 30.minutes.to_i
+  end
+
+  test "not create event with invalid atrributes" do
+    Event.create kind: '', starts_at: nil, ends_at: DateTime.parse("2014-08-04 12:30"), weekly_recurring: false
+    assert_equal 0, Event.all.size
+    assert 'You must provide required fields: kind, starts_at, ends_at.'
+  end
 end
