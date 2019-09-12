@@ -33,10 +33,10 @@ class EventService
   end
 
   def recurring
-    1.week.size.times do
+  weeks_count(@starts_at.year).times do
       one_day
-      @starts_at += 1.day
-      @ends_at += 1.day
+      @starts_at += 1.week
+      @ends_at += 1.week
     end
   end
 
@@ -62,6 +62,17 @@ class EventService
     grouped_by_kind[OPENING].try(:each){ |e| starts_at_values << e.starts_at }
     starts_at_values.each do |time|
       Event.where("starts_at = ? AND kind = ?", time, APPOINTMENT).first.try(:destroy)
+    end
+  end
+
+  private
+
+  def weeks_count(year)
+    last_day = Date.new(year).end_of_year
+    if last_day.cweek == 1
+      last_day.prev_week.cweek
+    else
+      last_day.cweek
     end
   end
 
