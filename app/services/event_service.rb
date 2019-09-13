@@ -65,8 +65,6 @@ class EventService
     end
   end
 
-  private
-
   def weeks_count(year)
     last_day = Date.new(year).end_of_year
     if last_day.cweek == 1
