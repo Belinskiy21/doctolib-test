@@ -24,7 +24,7 @@ class EventService
   private
 
   def recurring
-  weeks_count(@starts_at.year).times do
+  weeks_count.times do
       one_day
       @starts_at += 1.week
       @ends_at += 1.week
@@ -71,14 +71,14 @@ class EventService
     end
   end
 
-  def weeks_count(year)
-    last_day = Date.new(year).end_of_year
+  def weeks_count
+    last_day = Date.new(@starts_at.year).end_of_year
     if last_day.cweek == 1
       number_of_week = last_day.prev_week.cweek
     else
       number_of_week = last_day.cweek
     end
-    number_of_week - Date.today.strftime("%U").to_i
+    number_of_week - @starts_at.to_date.strftime("%U").to_i
   end
 
 end

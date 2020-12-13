@@ -25,7 +25,7 @@ class EventTest < ActiveSupport::TestCase
   test "when create event weekly_recurring true" do
     Event.create kind: 'opening', starts_at: DateTime.parse("2014-08-04 09:30"), ends_at: DateTime.parse("2014-08-04 12:30"), weekly_recurring: true
 
-    assert_equal 12, Event.all.size
+    assert_equal 126, Event.all.size
   end
 
   test "not create event in sunday" do
