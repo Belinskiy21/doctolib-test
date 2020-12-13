@@ -12,25 +12,16 @@ class EventService
 
   def create_events
     ActiveRecord::Base.transaction do
-      unless @weekly_recurring
-        one_day
-      else
+      if @weekly_recurring
         recurring
+      else
+        one_day
       end
     end
     delete_conflict_events
   end
 
   private
-
-  def one_day
-    if !@starts_at.to_date.sunday?
-      (@starts_at.to_i...@ends_at.to_i).step(STEP_SIZE).each do |time|
-      event = Event.new(kind: @kind, starts_at: Time.at(time).utc, ends_at: Time.at(time).utc + STEP_SIZE, weekly_recurring: @weekly_recurring)
-      event.save!
-      end
-    end
-  end
 
   def recurring
   weeks_count(@starts_at.year).times do
@@ -40,8 +31,23 @@ class EventService
     end
   end
 
+  def one_day
+    if !@starts_at.to_date.sunday?
+      (@starts_at.to_i...@ends_at.to_i).step(STEP_SIZE).each do |time|
+      event = Event.new(
+        kind: @kind,
+        starts_at: Time.at(time).utc,
+        ends_at: Time.at(time).utc + STEP_SIZE,
+        weekly_recurring: @weekly_recurring
+      )
+      event.save!
+      end
+    end
+  end
+
   def delete_conflict_events
-    grouped_by_kind =  Event.all.group_by { |event| event.kind }
+    grouped_by_kind = Event.where("starts_at >= ? AND ends_at <= ?", @starts_at, @ends_at)
+    .group_by { |event| event.kind }
     if @kind == APPOINTMENT
       remove_opening(grouped_by_kind)
     elsif @kind == OPENING

@@ -3,11 +3,12 @@ class Event < ApplicationRecord
 
   def self.availabilities(date)
     result = []
-    grouped_by_date =  Event.all.group_by { |event| event.starts_at.to_date }
+    grouped_by_date =  Event.where(kind: "opening")
+    .group_by { |event| event.starts_at.to_date }
     7.times do
       slots = []
-      grouped_by_date[date.to_date].try(:each) do |event|
-        slots << event.starts_at.strftime('%H:%M') if event.kind == "opening"
+      grouped_by_date[date].try(:each) do |event|
+        slots << event.starts_at.strftime('%H:%M')
       end
       result << { date: date.strftime('%Y/%m/%d'), slots: slots }
       date += 1.day
@@ -31,9 +32,10 @@ class Event < ApplicationRecord
   private
 
   def self.validate_attributes?(attributes)
-    attributes[:kind].present? &&
-    attributes[:starts_at].present? &&
-    attributes[:ends_at].present?
+    [attributes[:kind].present?,
+    attributes[:starts_at].present?,
+    attributes[:ends_at].present?]
+    .all?
   end
 
 end
