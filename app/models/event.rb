@@ -3,7 +3,9 @@ class Event < ApplicationRecord
 
   def self.availabilities(date)
     result = []
+    end_date = date + 6.days
     grouped_by_date =  Event.where(kind: "opening")
+    .where(starts_at: date.beginning_of_day..end_date.end_of_day)
     .group_by { |event| event.starts_at.to_date }
     7.times do
       slots = []
